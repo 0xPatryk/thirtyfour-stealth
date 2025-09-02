@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use undetected_chromedriver::chrome;
+    use thirtyfour_stealth::chrome;
 
     #[tokio::test]
     async fn test_chrome() {

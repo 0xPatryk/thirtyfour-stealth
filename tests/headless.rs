@@ -2,7 +2,7 @@
 mod tests {
     use thirtyfour::prelude::ElementQueryable;
     use thirtyfour::By;
-    use undetected_chromedriver::{chrome, chrome_with_capabilities, DefaultCapabilitiesBuilder};
+    use thirtyfour_stealth::{chrome, chrome_with_capabilities, DefaultCapabilitiesBuilder};
 
     #[tokio::test]
     async fn test_headless_detection() {

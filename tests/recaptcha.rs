@@ -2,7 +2,7 @@
 mod tests {
     use thirtyfour::prelude::{ElementQueryable, ElementWaitable};
     use thirtyfour::By;
-    use undetected_chromedriver::chrome;
+    use thirtyfour_stealth::chrome;
 
     async fn get_score(driver: &thirtyfour::WebDriver) -> Option<f32> {
         driver

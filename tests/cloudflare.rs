@@ -2,7 +2,7 @@
 mod tests {
     use thirtyfour::prelude::ElementQueryable;
     use thirtyfour::By;
-    use undetected_chromedriver::{chrome, Chrome};
+    use thirtyfour_stealth::{chrome, Chrome};
 
     #[tokio::test]
     async fn test_cloudflare() {

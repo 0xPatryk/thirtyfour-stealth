@@ -2,7 +2,9 @@ use std::error::Error;
 
 use rand::Rng;
 
-pub fn patch_chromedriver(chromedriver_executable: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+pub fn patch_chromedriver(
+    chromedriver_executable: &str,
+) -> Result<(), Box<dyn Error + Send + Sync>> {
     tracing::info!("Starting ChromeDriver executable patch...");
     let file_name = if cfg!(windows) {
         "chromedriver.exe"
@@ -26,8 +28,8 @@ pub fn patch_chromedriver(chromedriver_executable: &str) -> Result<(), Box<dyn E
             )
             .as_str()
         {
-            for x in i + 4..i + 22 {
-                total_cdc.push_str(&(f[x] as char).to_string());
+            for &byte in &f[i + 4..i + 22] {
+                total_cdc.push(byte as char);
             }
             is_cdc_present = true;
             cdc_pos_list.push(i);
@@ -45,9 +47,9 @@ pub fn patch_chromedriver(chromedriver_executable: &str) -> Result<(), Box<dyn E
             .collect::<Vec<char>>()[rand::rng().random_range(0..48)]
     };
 
-    for i in cdc_pos_list {
-        for x in i + 4..i + 22 {
-            new_chromedriver_bytes[x] = get_random_char() as u8;
+    for &i in &cdc_pos_list {
+        for byte in &mut new_chromedriver_bytes[i + 4..i + 22] {
+            *byte = get_random_char() as u8;
         }
         patch_ct += 1;
     }

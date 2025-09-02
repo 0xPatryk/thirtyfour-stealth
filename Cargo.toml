@@ -2,10 +2,16 @@
 name = "thirtyfour-stealth"
 version = "0.1.2"
 edition = "2021"
-description = "An undetected implementation of thirtyfour."
+description = "A stealthy, undetected implementation of thirtyfour for web automation"
 repository = "https://github.com/0xpatryk/thirtyfour-stealth"
 license = "MIT"
 readme = "README.md"
+keywords = ["selenium", "webdriver", "automation", "scraping", "stealth", "thirtyfour"]
+categories = ["web-programming", "api-bindings", "development-tools"]
+authors = ["Your Name patryk.stemporowski@gmail.com"]
+documentation = "https://docs.rs/thirtyfour-stealth"
+homepage = "https://github.com/0xpatryk/thirtyfour-stealth"
+rust-version = "1.89"
 
 [dependencies]
 async-trait = "0.1.89"
