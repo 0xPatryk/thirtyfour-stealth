@@ -1,9 +1,9 @@
 [package]
-name = "undetected-chromedriver"
+name = "thirtyfour-stealth"
 version = "0.1.2"
 edition = "2021"
 description = "An undetected implementation of thirtyfour."
-repository = "https://github.com/Ulyssedev/Rust-undetected-chromedriver"
+repository = "https://github.com/0xpatryk/thirtyfour-stealth"
 license = "MIT"
 readme = "README.md"
 
@@ -12,7 +12,7 @@ async-trait = "0.1.89"
 rand = "0.9.2"
 reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
 serde_json = "1.0.143"
-thirtyfour = "0.35.0"
+thirtyfour = "0.36.1"
 tokio = "1.47.1"
 zip = "2.4.2"
 tracing = "0.1.41"
