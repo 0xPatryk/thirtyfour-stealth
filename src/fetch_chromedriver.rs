@@ -5,6 +5,7 @@ use crate::get_chrome_version::get_chrome_version;
 pub async fn fetch_chromedriver() -> Result<(), Box<dyn Error + Send + Sync>> {
     let os = std::env::consts::OS;
     let client = reqwest::Client::new();
+    let arch = std::env::consts::ARCH;
 
     let installed_version = get_chrome_version(os).await?;
     let chromedriver_url: String;
@@ -24,10 +25,23 @@ pub async fn fetch_chromedriver() -> Result<(), Box<dyn Error + Send + Sync>> {
                 "https://storage.googleapis.com/chrome-for-testing-public/{}/{}/{}",
                 version, "linux64", "chromedriver-linux64.zip"
             ),
-            "macos" => format!(
-                "https://storage.googleapis.com/chrome-for-testing-public/{}/{}/{}",
-                version, "mac-x64", "chromedriver-mac-x64.zip"
-            ),
+            "macos" => {
+                // macOS: pick correct arch-specific artifact
+                let mac_dir = if arch == "aarch64" {
+                    "mac-arm64"
+                } else {
+                    "mac-x64"
+                };
+                let mac_zip = if arch == "aarch64" {
+                    "chromedriver-mac-arm64.zip"
+                } else {
+                    "chromedriver-mac-x64.zip"
+                };
+                format!(
+                    "https://storage.googleapis.com/chrome-for-testing-public/{}/{}/{}",
+                    version, mac_dir, mac_zip
+                )
+            }
             "windows" => format!(
                 "https://storage.googleapis.com/chrome-for-testing-public/{}/{}/{}",
                 version, "win64", "chromedriver-win64.zip"
@@ -52,10 +66,21 @@ pub async fn fetch_chromedriver() -> Result<(), Box<dyn Error + Send + Sync>> {
                 "https://chromedriver.storage.googleapis.com/{}/chromedriver_win32.zip",
                 body
             ),
-            "macos" => format!(
-                "https://chromedriver.storage.googleapis.com/{}/chromedriver_mac64.zip",
-                body
-            ),
+            "macos" => {
+                // Prior to Chrome 114, Apple Silicon builds were distributed separately
+                // as chromedriver_mac64_m1.zip. Fallback to x64 if not on Apple Silicon.
+                if arch == "aarch64" {
+                    format!(
+                        "https://chromedriver.storage.googleapis.com/{}/chromedriver_mac64_m1.zip",
+                        body
+                    )
+                } else {
+                    format!(
+                        "https://chromedriver.storage.googleapis.com/{}/chromedriver_mac64.zip",
+                        body
+                    )
+                }
+            }
             _ => panic!("Unsupported OS!"),
         };
     }

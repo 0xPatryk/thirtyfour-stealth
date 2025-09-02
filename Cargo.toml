@@ -1,6 +1,6 @@
 [package]
 name = "thirtyfour-stealth"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 description = "A stealthy, undetected implementation of thirtyfour for web automation"
 repository = "https://github.com/0xpatryk/thirtyfour-stealth"

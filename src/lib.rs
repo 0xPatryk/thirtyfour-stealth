@@ -57,6 +57,19 @@ pub async fn try_start_chrome(
         tracing::info!("ChromeDriver does not exist! Fetching...");
         fetch_chromedriver().await?;
     }
+
+    // Ensure existing driver matches host architecture on macOS.
+    // If not, remove and re-download the correct one.
+    if !is_existing_chromedriver_compatible()? {
+        tracing::warn!(
+            "Existing ChromeDriver appears incompatible with host arch. Re-downloading..."
+        );
+        let _ = std::fs::remove_file("chromedriver");
+        let _ = std::fs::remove_file("chromedriver.exe");
+        let _ = std::fs::remove_file("chromedriver_PATCHED");
+        let _ = std::fs::remove_file("chromedriver_PATCHED.exe");
+        fetch_chromedriver().await?;
+    }
     let chromedriver_executable = get_patched_chrome_driver_executable()?;
     if std::path::Path::new(chromedriver_executable).exists() {
         tracing::info!("Detected patched chromedriver executable!");
@@ -83,7 +96,43 @@ pub async fn try_start_chrome(
     Ok((driver, chrome_driver_handle))
 }
 
-fn get_patched_chrome_driver_executable() -> Result<&'static str, Box<dyn std::error::Error + Send + Sync>> {
+fn is_existing_chromedriver_compatible() -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
+    #[cfg(target_os = "macos")]
+    {
+        let arch = std::env::consts::ARCH; // "aarch64" or "x86_64"
+        let candidate = if std::path::Path::new("chromedriver_PATCHED").exists() {
+            "chromedriver_PATCHED"
+        } else if std::path::Path::new("chromedriver").exists() {
+            "chromedriver"
+        } else {
+            return Ok(true);
+        };
+        let output = std::process::Command::new("/usr/bin/file")
+            .arg(candidate)
+            .output();
+        if let Ok(out) = output {
+            let stdout = String::from_utf8_lossy(&out.stdout).to_string();
+            // Heuristic: ensure the Mach-O header mentions the expected cpu subtype
+            let is_arm_expected = arch == "aarch64";
+            let mentions_arm64 = stdout.contains("arm64");
+            let mentions_x86_64 = stdout.contains("x86_64");
+            if is_arm_expected && mentions_x86_64 {
+                return Ok(false);
+            }
+            if !is_arm_expected && mentions_arm64 {
+                return Ok(false);
+            }
+        }
+        return Ok(true);
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        Ok(true)
+    }
+}
+
+fn get_patched_chrome_driver_executable(
+) -> Result<&'static str, Box<dyn std::error::Error + Send + Sync>> {
     let os = std::env::consts::OS;
     let chromedriver_executable = match os {
         "linux" => "chromedriver_PATCHED",
